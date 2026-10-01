@@ -2,6 +2,8 @@
 package com.first.bank.Entity;
 
 
+import com.first.bank.Exception.InsufficientFundsException;
+import com.first.bank.Exception.InvalidAmountException;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -36,9 +38,7 @@ import jakarta.persistence.*;
 
         public void deposit(BigDecimal amount) {
             if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
-                throw new IllegalArgumentException(
-                        "Deposit amount must be greater than zero"
-                );
+                throw new InvalidAmountException();
             }
 
             balance = balance.add(amount);
@@ -46,15 +46,11 @@ import jakarta.persistence.*;
 
         public void withdraw(BigDecimal amount) {
             if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
-                throw new IllegalArgumentException(
-                        "Withdrawal amount must be greater than zero"
-                );
+                throw new InsufficientFundsException();
             }
 
             if (amount.compareTo(balance) > 0) {
-                throw new IllegalArgumentException(
-                        "Insufficient balance"
-                );
+                throw new InsufficientFundsException();
             }
 
             balance = balance.subtract(amount);
