@@ -4,6 +4,8 @@ import com.first.bank.Dto.TransferRequest;
 import com.first.bank.Entity.Account;
 import com.first.bank.Entity.Transaction;
 import com.first.bank.Entity.TransactionType;
+import com.first.bank.Exception.AccountNotFoundException;
+import com.first.bank.Exception.SameAccountTransferException;
 import com.first.bank.Repository.AccountRepo;
 import com.first.bank.Repository.TransactionRepo;
 import org.springframework.stereotype.Service;
@@ -31,7 +33,7 @@ public class AccountService {
 
     public Account getAccount(Long id) {
         return accountRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Account not found"));
+                .orElseThrow(() -> new AccountNotFoundException(id));
     }
 
     public List<Account> getAllAccounts() {
@@ -101,9 +103,7 @@ public class AccountService {
                 getAccount(request.getReceiverAccountId());
 
         if (sender.getId().equals(receiver.getId())) {
-            throw new IllegalArgumentException(
-                    "Sender and receiver cannot be the same"
-            );
+            throw new SameAccountTransferException();
         }
 
         sender.withdraw(request.getAmount());
