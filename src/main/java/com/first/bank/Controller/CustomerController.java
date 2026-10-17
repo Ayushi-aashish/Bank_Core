@@ -2,8 +2,13 @@ package com.first.bank.Controller;
 
 
 
+import com.first.bank.Dto.CustomerResponse;
 import com.first.bank.Entity.Customer;
 import com.first.bank.Service.CustomerService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,8 +38,14 @@ import java.util.List;
         }
 
         @GetMapping
-        public List<Customer> getAllCustomers() {
-            return customerService.getAllCustomers();
+        public Page<CustomerResponse> getAllCustomers(
+                @PageableDefault(
+                        size = 10,
+                        sort = "id",
+                        direction = Sort.Direction.ASC
+                ) Pageable pageable) {
+
+            return customerService.getAllCustomers(pageable);
         }
     }
 

@@ -14,6 +14,8 @@ import com.first.bank.Exception.SameAccountTransferException;
 import com.first.bank.Repository.AccountRepo;
 import com.first.bank.Repository.CustomerRepo;
 import com.first.bank.Repository.TransactionRepo;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -71,12 +73,9 @@ public class AccountService {
     }
 
     // Get All Accounts
-    public List<AccountResponse> getAllAccounts() {
-
-        return accountRepository.findAll()
-                .stream()
-                .map(this::toAccountResponse)
-                .toList();
+    public Page<AccountResponse> getAllAccounts(Pageable pageable) {
+        return accountRepository.findAll(pageable)
+                .map(this::toAccountResponse);
     }
 
     // Deposit
@@ -145,21 +144,23 @@ public class AccountService {
     }
 
     // Get Transaction History
-    public List<TransactionResponse> getTransactions(Long accountId) {
+    public Page<TransactionResponse> getTransactions(
+            Long accountId, Pageable pageable) {
 
         accountRepository.findById(accountId)
-                .orElseThrow(() -> new AccountNotFoundException(accountId));
+                .orElseThrow(
+                        () -> new AccountNotFoundException(accountId)
+                );
 
-        return transactionRepository.findByAccountId(accountId)
-                .stream()
+        return transactionRepository
+                .findByAccountId(accountId, pageable)
                 .map(transaction -> new TransactionResponse(
                         transaction.getId(),
                         transaction.getType(),
                         transaction.getAmount(),
                         transaction.getTimestamp(),
                         transaction.getAccount().getId()
-                ))
-                .toList();
+                ));
     }
 
     // Transfer
