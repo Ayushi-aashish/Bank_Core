@@ -11,6 +11,10 @@ import com.first.bank.Entity.Transaction;
 import com.first.bank.Service.AccountService;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 
 import java.util.List;
 
@@ -35,27 +39,42 @@ public class AccountController {
     }
 
     @GetMapping
-    public List<AccountResponse> getAllAccounts() {
-        return accountService.getAllAccounts();
+    public Page<AccountResponse> getAllAccounts(
+            @PageableDefault(
+                    size = 10,
+                    sort = "id",
+                    direction = Sort.Direction.ASC
+            ) Pageable pageable) {
+
+        return accountService.getAllAccounts(pageable);
     }
+
     @PostMapping("/{id}/deposit")
     public AccountResponse deposit(
             @PathVariable Long id,
-          @Valid  @RequestBody MoneyRequest request) {
+            @Valid @RequestBody MoneyRequest request) {
         System.out.println("Amount received by controller: " + request.getAmount());
         return accountService.deposit(id, request.getAmount());
     }
+
     @PostMapping("/{id}/withdraw")
     public AccountResponse withdraw(
             @PathVariable Long id,
-           @Valid  @RequestBody MoneyRequest request) {
+            @Valid @RequestBody MoneyRequest request) {
 
         return accountService.withdraw(id, request.getAmount());
     }
-    @GetMapping("/{id}/transactions")
-    public List<TransactionResponse> getTransactions(
-            @PathVariable Long id) {
 
-        return accountService.getTransactions(id);
+
+    @GetMapping("/{id}/transactions")
+    public Page<TransactionResponse> getTransactions(
+            @PathVariable Long id,
+            @PageableDefault(
+                    size = 10,
+                    sort = "timestamp",
+                    direction = Sort.Direction.DESC
+            ) Pageable pageable) {
+
+        return accountService.getTransactions(id, pageable);
     }
 }
